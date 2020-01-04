@@ -1,0 +1,6 @@
+stub1:
+  path: /test
+  method: GET
+  request: foo
+  responseCode: 200
+  responseBody: bar
