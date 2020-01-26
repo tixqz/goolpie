@@ -1,6 +1,13 @@
-stub1:
-  path: /test
-  method: GET
-  request: foo
-  responseCode: 200
-  responseBody: bar
+host: "http://localhost/"
+port: 8800
+basepath: /v1
+paths:
+  /test:
+    - method: "POST"
+      request: "foo"
+      responseCode: 200
+      responseBody: "bar"
+  /other:
+    - method: "GET"
+      responseCode: 404
+      responseBody: "bar"
