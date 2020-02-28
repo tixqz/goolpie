@@ -1,28 +1,18 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+
 	"github.com/tixqz/goolpie"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"log"
-	"net/http"
 )
 
 func main() {
-	file, err := ioutil.ReadFile("C:/Users/Mikhail/go/src/github.com/tixqz/goolpie/example/example.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
+	filePath := flag.String("filepath", "./example/example.yml", "path to your local config")
 
-	stubApi := &goolpie.StubConfig{}
+	flag.Parse()
 
-	err = yaml.Unmarshal(file, &stubApi)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	conf := goolpie.LoadConfigs(*filePath)
+	stubApi := goolpie.NewStubServer(conf)
 	fmt.Printf("result: %v", stubApi)
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", stubApi.Port), nil))
 }

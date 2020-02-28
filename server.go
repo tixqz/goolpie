@@ -7,26 +7,12 @@ import (
 	"net/http"
 )
 
-type StubConfig struct {
-	Host      string                `yaml:"host"`
-	Port      int                   `yaml:"port"`
-	BasePath  string                `yaml:"basepath"`
-	Endpoints map[string][]Endpoint `yaml:"endpoints"`
-}
-
-type Endpoint struct {
-	Method       string `yaml:"method"`
-	Request      string `yaml:"request"`
-	ResponseCode int    `yaml:"responseCode"`
-	ResponseBody string `yaml:"responseBody"`
-}
-
 type StubServer struct {
-	config StubConfig
+	config Config
 	router *http.ServeMux
 }
 
-func NewStubServer(config StubConfig) *StubServer {
+func NewStubServer(config Config) *StubServer {
 	fmt.Printf("Starting server with configs: %v", config)
 
 	s := &StubServer{
@@ -47,12 +33,12 @@ func (s *StubServer) createHandlers() {
 		endpoint = s.config.BasePath + endpoint
 		log.Printf("Creating handler for endpoint %x.", endpoint)
 		for _, setting := range settings {
-			s.router.HandleFunc(endpoint, createResponseWithSettings(setting))
+			s.router.HandleFunc(endpoint, createResponseWithSettings(endpoint, setting))
 		}
 	}
 }
 
-func createResponseWithSettings(setting Endpoint) http.HandlerFunc {
+func createResponseWithSettings(path string, setting Endpoint) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -61,7 +47,7 @@ func createResponseWithSettings(setting Endpoint) http.HandlerFunc {
 		fmt.Printf("Request body: %x", body)
 
 		if setting.Method != r.Method {
-			log.Fatalf("Provided method %x is not expected for this endpoint %x. Expected method: %x", r.Method)
+			log.Fatalf("Provided method %x is not expected for this endpoint %x. Expected method: %x", r.Method, path, setting.Method)
 		}
 		fmt.Printf("Request method: %x", r.Method)
 
