@@ -2,12 +2,12 @@ host: "http://localhost/"
 port: 8800
 basepath: /v1
 paths:
-  /test:
-    - method: "POST"
+    - endpoint: "/test"
+      method: "POST"
       request: "foo"
       responseCode: 200
       responseBody: "bar"
-  /other:
-    - method: "GET"
+    - endpoint: "/other"
+      method: "GET"
       responseCode: 404
       responseBody: "bar"

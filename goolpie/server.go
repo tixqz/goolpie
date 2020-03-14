@@ -13,7 +13,7 @@ type StubServer struct {
 }
 
 func NewStubServer(config Config) *StubServer {
-	fmt.Printf("Starting server with configs: %v", config)
+	fmt.Printf("Starting server with configs: %v \n", config)
 
 	s := &StubServer{
 		config,
@@ -29,34 +29,32 @@ func (s *StubServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *StubServer) createHandlers() {
 	endpoints := s.config.Endpoints
-	for endpoint, settings := range endpoints {
-		endpoint = s.config.BasePath + endpoint
+	for _, settings := range endpoints {
+		endpoint := s.config.BasePath + settings.Endpoint
 		log.Printf("Creating handler for endpoint %x.", endpoint)
-		for _, setting := range settings {
-			s.router.HandleFunc(endpoint, createResponseWithSettings(endpoint, setting))
-		}
+		s.router.HandleFunc(endpoint, createResponseWithSettings(settings))
 	}
 }
 
-func createResponseWithSettings(path string, setting Endpoint) http.HandlerFunc {
+func createResponseWithSettings(setting EndpointSettings) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
-		fmt.Printf("Request body: %x", body)
 
 		if setting.Method != r.Method {
-			log.Fatalf("Provided method %x is not expected for this endpoint %x. Expected method: %x", r.Method, path, setting.Method)
+			log.Printf("Provided method %x is not expected for this endpoint %x. Expected method: %x \n", r.Method, setting.Endpoint, setting.Method)
 		}
-		fmt.Printf("Request method: %x", r.Method)
 
 		if setting.Request == string(body) {
 			w.WriteHeader(setting.ResponseCode)
 			fmt.Fprint(w, setting.ResponseBody)
 		} else {
-			log.Fatalf("Contract is violated. Expected: %x", setting.Request)
+			log.Printf("Contract is violated. Expected: %x \n", setting.Request)
 		}
+
+		log.Printf("Request body: %s, Method: %s, Response: %s \n", string(body), r.Method, setting.ResponseBody)
 
 	}
 }
