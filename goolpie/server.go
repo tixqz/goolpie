@@ -50,7 +50,9 @@ func createResponseWithSettings(setting EndpointSettings) http.HandlerFunc {
 		if setting.Request == string(body) {
 			w.WriteHeader(setting.ResponseCode)
 			fmt.Fprint(w, setting.ResponseBody)
+
 		} else {
+			fmt.Fprint(w, "Invalid request")
 			log.Printf("Contract is violated. Expected: %x \n", setting.Request)
 		}
 
